@@ -225,7 +225,7 @@ function makeAxiosInstance({
         message: `Request completed in ${duration} ms`,
       });
       response.timeline = timeline;
-      return response;
+      return Promise.resolve(response);
     },
     (error) => {
       const config = error.config;
@@ -270,7 +270,7 @@ function makeAxiosInstance({
               type: 'error',
               message: safeStringifyJSON(errorResponseData?.toString?.())
             });
-            return {
+            return Promise.reject({
               status: error.response.status,
               statusText: error.response.statusText,
               headers: error.response.headers,
@@ -278,7 +278,7 @@ function makeAxiosInstance({
               size: Buffer.byteLength(dataBuffer),
               duration: error.response.headers.get('request-duration') ?? 0,
               timeline: error.response.timeline
-            };
+            });
           }
 
           // Increase redirect count
@@ -357,15 +357,17 @@ function makeAxiosInstance({
             type: 'error',
             message: safeStringifyJSON(error?.errors)
           });
-          return {
+          
+          return Promise.reject({
             status: error.response.status,
             statusText: error.response.statusText,
             headers: error.response.headers,
             data: errorResponseData?.toString?.(),
             size: Buffer.byteLength(dataBuffer),
             duration: error.response.headers.get('request-duration') ?? 0,
-            timeline
-          };
+            timeline,
+            config: error.config,
+          });
         }
       }
       else if (error?.code) {
@@ -386,13 +388,14 @@ function makeAxiosInstance({
           type: 'error',
           message: safeStringifyJSON(error?.errors)
         });
-        return {
+        
+        return Promise.reject({
           status: '-',
           statusText: error.code,
           headers: error?.config?.headers,
           data: 'request failed, check timeline network logs',
           timeline
-        };
+        });
       }
       return Promise.reject(error);
     }

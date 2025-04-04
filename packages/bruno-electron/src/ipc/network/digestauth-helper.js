@@ -27,10 +27,8 @@ function md5(input) {
 
 function addDigestInterceptor(axiosInstance, request) {
   const { username, password } = request.digestConfig;
-  console.debug('Digest Auth Interceptor Initialized');
 
   if (!isStrPresent(username) || !isStrPresent(password)) {
-    console.warn('Required Digest Auth fields (username/password) are not present');
     return;
   }
 
@@ -40,20 +38,17 @@ function addDigestInterceptor(axiosInstance, request) {
       const originalRequest = error.config;
 
       // Prevent retry loops
-      if (originalRequest._retry) {
+      if (originalRequest?._retry) {
         return Promise.reject(error);
       }
       originalRequest._retry = true;
 
       if (
-        error.response?.status === 401 &&
-        containsDigestHeader(error.response) &&
-        !containsAuthorizationHeader(originalRequest)
+        error?.status === 401 &&
+        containsDigestHeader(error) &&
+        !containsAuthorizationHeader(error)
       ) {
-        console.debug('Processing Digest Authentication Challenge');
-        console.debug(error.response.headers['www-authenticate']);
-
-        const authDetails = error.response.headers['www-authenticate']
+        const authDetails = error.headers['www-authenticate']
           .split(',')
           .map((pair) => pair.split('=').map((item) => item.trim()).map(stripQuotes))
           .reduce((acc, [key, value]) => {
@@ -66,17 +61,13 @@ function addDigestInterceptor(axiosInstance, request) {
 
         // Validate required auth details
         if (!authDetails.realm || !authDetails.nonce) {
-          console.warn('Missing required auth details (realm or nonce)');
           return Promise.reject(error);
         }
-
-        console.debug("Auth Details: \n", authDetails);
 
         const nonceCount = '00000001';
         const cnonce = crypto.randomBytes(24).toString('hex');
 
         if (authDetails.algorithm && authDetails.algorithm.toUpperCase() !== 'MD5') {
-          console.warn(`Unsupported Digest algorithm: ${authDetails.algorithm}`);
           return Promise.reject(error);
         } else {
           authDetails.algorithm = 'MD5';
@@ -110,8 +101,6 @@ function addDigestInterceptor(axiosInstance, request) {
         // Ensure headers are initialized
         originalRequest.headers = originalRequest.headers || {};
         originalRequest.headers['Authorization'] = authorizationHeader;
-
-        console.debug(`Authorization: ${originalRequest.headers['Authorization']}`);
 
         delete originalRequest.digestConfig;
 
