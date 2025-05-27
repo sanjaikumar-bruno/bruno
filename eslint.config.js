@@ -26,7 +26,7 @@ module.exports = defineConfig([
     },
   },
   {
-    files: ["packages/bruno-app/**/__mocks__/*.{js,jsx,ts}"],
+    files: ["packages/bruno-app/src/test-utils/mocks/codemirror.js"],
     languageOptions: {
       globals: {
         ...globals.node,
