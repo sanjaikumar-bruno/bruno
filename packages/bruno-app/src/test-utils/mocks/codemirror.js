@@ -18,7 +18,7 @@ const CodeMirror = jest.fn((node, options) => {
       if (event === 'inputRead') {
         this.inputReadHandler = handler;
       }
-    }),
+    })
   };
   return editor;
 });

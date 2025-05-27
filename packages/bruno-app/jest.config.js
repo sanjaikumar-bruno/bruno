@@ -15,7 +15,7 @@ module.exports = {
     '^pageComponents/(.*)$': '<rootDir>/src/pageComponents/$1',
     '^providers/(.*)$': '<rootDir>/src/providers/$1',
     '^utils/(.*)$': '<rootDir>/src/utils/$1',
-    '^codemirror$': '<rootDir>/src/components/CodeEditor/__mocks__/codemirror.js',
+    '^codemirror$': '<rootDir>/src/test-utils/mocks/codemirror.js',
   },
   clearMocks: true,
   moduleDirectories: ['node_modules', 'src'],

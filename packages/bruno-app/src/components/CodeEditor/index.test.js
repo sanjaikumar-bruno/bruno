@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, act } from '@testing-library/react';
-import CodeEditor from '../../CodeEditor';
+import CodeEditor from './index';
 import { ThemeProvider } from 'styled-components';
 
 jest.mock('codemirror');
@@ -22,6 +22,10 @@ const setupEditorState = (editor, { value, cursorPosition }) => {
     }
     return editor._currentValue.slice(from.ch, to.ch);
   });
+
+  editor.state = {
+    completionActive: null,
+  }
 };
 
 const setupEditorWithRef = () => {
@@ -39,10 +43,9 @@ describe('CodeEditor Autocomplete', () => {
     jest.clearAllMocks();
   });
 
-  it('shows hint suggestions when typing {{$f', () => {
+  it('shows hint suggestions when typing {{$ra', () => {
     // Setup
     const { ref } = setupEditorWithRef();
-
     const editorInstance = ref.current;
     expect(editorInstance).toBeTruthy();
 
@@ -71,6 +74,7 @@ describe('CodeEditor Autocomplete', () => {
     const hints = call.hint();
     expect(Array.isArray(hints.list)).toBe(true);
     expect(hints.list.some((s) => s.startsWith('$'))).toBe(true);
+    expect(hints.list.every((match) => match.startsWith('$ra'))).toBe(true);
   });
 
   it('does not show hints for regular text input', () => {
