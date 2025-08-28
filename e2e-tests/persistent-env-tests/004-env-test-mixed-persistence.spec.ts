@@ -3,7 +3,7 @@ import { test, expect } from '../../playwright';
 test.describe.serial('Persistent Environment Test', () => {
   test.setTimeout(2 * 10 * 1000);
 
-  test('add env using script', async ({ pageWithUserData: page, restartApp }) => {
+  test('add env with mixed persistence', async ({ pageWithUserData: page, restartApp }) => {
     await page.locator('#sidebar-collection-name').click();
     await page.getByText('non-persist-2', { exact: true }).click();
     await page.getByText('Stage', { exact: true }).click();
