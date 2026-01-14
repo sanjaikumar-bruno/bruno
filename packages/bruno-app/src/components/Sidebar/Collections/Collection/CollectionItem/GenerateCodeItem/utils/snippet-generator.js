@@ -23,9 +23,19 @@ const generateSnippet = ({ language, item, collection, shouldInterpolate = false
 
     // Add auth headers if needed
     if (request.auth && request.auth.mode !== 'none') {
-      const collectionAuth = collection?.draft?.root ? get(collection, 'draft.root.request.auth', null) : get(collection, 'root.request.auth', null);
+      let collectionAuth = collection?.draft?.root ? get(collection, 'draft.root.request.auth', null) : get(collection, 'root.request.auth', null);
+
+      if (shouldInterpolate && collectionAuth && request.auth.mode === 'inherit') {
+        collectionAuth = interpolateObject(collectionAuth, variables);
+      }
+
       const authHeaders = getAuthHeaders(collectionAuth, request.auth);
       headers = [...headers, ...authHeaders];
+    }
+
+    // Interpolate merged headers if needed
+    if (shouldInterpolate) {
+      headers = interpolateObject(headers, variables);
     }
 
     // Build HAR request
